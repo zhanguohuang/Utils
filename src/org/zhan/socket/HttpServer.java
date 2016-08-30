@@ -10,7 +10,7 @@ public class HttpServer{
     try { 
        port = Integer.parseInt(args[0]);
      }catch (Exception e) {
-       System.out.println("port = 8080 (默认)");
+       System.out.println("port = 80 (默认)");
        port = 80; //默认端口为8080
      }
 
