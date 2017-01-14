@@ -48,7 +48,7 @@ public class XmlUtil {
 	 */
 	private static void detectChildValue(Branch parentElement, Object obj, String childName) {
 		if(!StringUtils.isEmpty(childName)) {
-			parentElement = ((Branch) parentElement).addElement(childName);
+			parentElement = parentElement.addElement(childName);
 		}
 		if(isSimpleClass(obj.getClass())) {
 			((Element) parentElement).addText(obj.toString());
