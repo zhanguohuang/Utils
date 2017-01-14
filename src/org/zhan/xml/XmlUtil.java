@@ -2,6 +2,7 @@ package org.zhan.xml;
 
 import java.util.Map;
 
+import org.dom4j.Branch;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -36,31 +37,36 @@ public class XmlUtil {
 		Assert.notNull(obj, "obj must not be null");
 		Document doc = DocumentHelper.createDocument();
 		rootName = StringUtils.isEmpty(rootName) ? DEFAULT_ROOT_ELEMENT : rootName;
-		Element root = doc.addElement(rootName);
-		createObjectElement(root, obj);
+		detectChildValue(doc, obj, rootName);
 		return doc;
 	}
 	
 	/**
-	 * @param parentElement 父节点
+	 * @param parentElement
 	 * @param obj
+	 * @param childName
 	 */
-	private static void createObjectElement(Element parentElement, Object obj) {
-		Assert.notNull(parentElement, "parentElement must not be null");
-		Assert.notNull(obj, "obj must not be null");
-		if(parentElement.isRootElement() && isSimpleClass(obj.getClass())) {
-			parentElement.addText(obj.toString());
-			return;
+	private static void detectChildValue(Branch parentElement, Object obj, String childName) {
+		if(!StringUtils.isEmpty(childName)) {
+			parentElement = ((Branch) parentElement).addElement(childName);
 		}
-		BeanMap beanMap = BeanMap.create(obj);
-		for(Object key : beanMap.keySet()) {
-			if(beanMap.get(key) == null) continue;
-			if(isSimpleClass(beanMap.get(key).getClass())) {
-				Element childElement = parentElement.addElement(key.toString());
-				childElement.addText(beanMap.get(key).toString());
+		if(isSimpleClass(obj.getClass())) {
+			((Element) parentElement).addText(obj.toString());
+		} else {
+			Map map = null;
+			if(obj instanceof Map) {
+				map = (Map) obj;
 			} else {
-				Element childElement = parentElement.addElement(obj.getClass().getSimpleName());
-				createObjectElement(childElement, beanMap.get(key));
+				map = BeanMap.create(obj);
+			}
+			for(Object key : map.keySet()) {
+				if(map.get(key) == null) continue;
+				//是简单java对象
+				if(isSimpleClass(map.get(key).getClass()) || obj instanceof Map) {
+					detectChildValue(parentElement, map.get(key), key.toString());
+				} else {
+					detectChildValue(parentElement, map.get(key), obj.getClass().getSimpleName());
+				}
 			}
 		}
 	}
@@ -111,40 +117,10 @@ public class XmlUtil {
 		Assert.notNull(map, "map must not be null");
 		Document doc = DocumentHelper.createDocument();
 		rootName = StringUtils.isEmpty(rootName) ? DEFAULT_ROOT_ELEMENT : rootName;
-		Element root = doc.addElement(rootName);
-		createMapElement(root, map);
+		detectChildValue(doc, map, rootName);
 		return doc;
 	}	
 	
-	private static void createMapElement(Element parentElement, Map map) {
-		Assert.notNull(parentElement, "parentElement must not be null");
-		Assert.notNull(map, "map must not be null");
-		for(Object key : map.keySet()) {
-			Assert.isTrue(isSimpleClass(key.getClass()), "key must be basic data type");
-			Element childElement = parentElement.addElement(key.toString());
-			if(isSimpleClass(map.get(key).getClass())) {
-				childElement.addText(map.get(key).toString());
-			} else {
-				detectMapValue(childElement, map.get(key));
-			}
-			
-		}
-	}
-	
-	private static void detectMapValue(Element parentElement, Object obj) {
-		Assert.notNull(parentElement, "parentElement must not be null");
-		Assert.notNull(obj, "obj must not be null");
-		BeanMap beanMap = BeanMap.create(obj);
-		for(Object key : beanMap.keySet()) {
-			if(beanMap.get(key) == null) continue;
-			if(isSimpleClass(beanMap.get(key).getClass())) {
-				Element childElement = parentElement.addElement(key.toString());
-				childElement.addText(beanMap.get(key).toString());
-			} else {
-				detectMapValue(parentElement, beanMap.get(key));
-			}
-		}
-	}
 	
 	public static String parseMapToString(Map map) {
 		return parseMapToString(map, null);
