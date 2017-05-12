@@ -139,7 +139,7 @@ public class XmlUtil {
 	 * @param data
 	 * @return
 	 */
-	private static Map<String, String> toMap(String data) {
+	public static Map<String, String> toMap(String data) {
     	Map<String, String> map = new HashMap<String, String>();
     	Pattern pattern = Pattern.compile("<\\w+>[a-zA-Z0-9\u4E00-\u9FA5\uf900-\ufa2d]+</\\w+>");
     	Matcher matcher = pattern.matcher(data);
