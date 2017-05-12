@@ -1,6 +1,9 @@
 package org.zhan.xml;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.dom4j.Branch;
 import org.dom4j.Document;
@@ -15,6 +18,7 @@ import org.springframework.util.StringUtils;
  * 将对象转换为Document 
  * 
  */
+@SuppressWarnings("rawtypes")
 public class XmlUtil {
 	
 	public static final String DEFAULT_ROOT_ELEMENT = "root";
@@ -130,4 +134,21 @@ public class XmlUtil {
 		return parseMap(map, rootName).asXML();
 	}
 	
+	/**
+	 * 将xml里有内容的抽取出来并封装为map
+	 * @param data
+	 * @return
+	 */
+	private static Map<String, String> toMap(String data) {
+    	Map<String, String> map = new HashMap<String, String>();
+    	Pattern pattern = Pattern.compile("<\\w+>[a-zA-Z0-9\u4E00-\u9FA5\uf900-\ufa2d]+</\\w+>");
+    	Matcher matcher = pattern.matcher(data);
+    	while(matcher.find()) {
+    		String group = matcher.group();
+    		String key = group.substring(1, group.indexOf(">"));
+    		String value = group.substring(group.indexOf(">") + 1, group.lastIndexOf("<"));
+    		map.put(key, value);
+    	}
+    	return map;
+    }
 }
