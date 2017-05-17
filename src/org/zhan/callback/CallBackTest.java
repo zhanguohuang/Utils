@@ -2,7 +2,7 @@ package org.zhan.callback;
 
 import org.junit.Test;
 
-public class CallBeanTest {
+public class CallBackTest {
 
 	@Test
 	public void test() {
