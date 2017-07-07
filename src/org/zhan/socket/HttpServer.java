@@ -48,11 +48,12 @@ public class HttpServer {
 		String request = new String(requestBuffer);
 		System.out.println(request); //
 		OutputStream ops = socket.getOutputStream();
+		String responseBuffer = "SUCCESS";
 		String response = "HTTP/1.1 200 OK\r\n" 
 						+ "Content-Type: text/html\r\n" 
-						+ "Content-Length: 7\r\n" 
+						+ "Content-Length: " + responseBuffer.length() + "\r\n" 
 						+ "\r\n" 
-						+ "SUCCESS";
+						+ responseBuffer;
 		ops.write(response.getBytes("UTF-8"));
 		ops.flush();
 		ops.close();
